@@ -1,8 +1,7 @@
 import { afterNextRender, Component, signal } from '@angular/core';
 import { AttributionControl, GeolocateControl, Map } from 'maplibre-gl';
 
-import { TerraDraw, TerraDrawRectangleMode } from "terra-draw";
-import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
+import { MaplibreMeasureControl } from '@watergis/maplibre-gl-terradraw';
 
 @Component({
   selector: 'app-map',
@@ -12,7 +11,7 @@ import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
 })
 export class MapComponent {
   #map!: Map;
-  #draw!: unknown;
+  #draw!: MaplibreMeasureControl;
 
   distance = signal<number>(0);
 
@@ -62,38 +61,21 @@ export class MapComponent {
         'bottom-right'
       );
 
-      const map = this.#map;
-      // Create Terra Draw
-      const draw = new TerraDraw({
-        // Using the MapLibre Adapter
-        adapter: new TerraDrawMapLibreGLAdapter({ map }),
-
-        // Add the Rectangle Mode
-        modes: [new TerraDrawRectangleMode()],
+      // you can disable options if you don't want to use them.
+      this.#draw = new MaplibreMeasureControl({
+        modes: [
+          'linestring',
+          'polygon',
+          'angled-rectangle',
+          'select',
+          'delete-selection',
+          'delete',
+          'download'
+        ],
+        open: true,
       });
 
-
-      // // //@ts-ignore
-      // this.#draw = new MaplibreTerradrawControl({
-      //   modes: [
-      //     'point',
-      //     'linestring',
-      //     'polygon',
-      //     'rectangle',
-      //     'angled-rectangle',
-      //     'circle',
-      //     'sector',
-      //     'sensor',
-      //     'freehand',
-      //     'select',
-      //     'delete-selection',
-      //     'delete',
-      //     'download'
-      //   ],
-      //   open: true,
-      // });
-
-     
+      this.#map.addControl(this.#draw, 'top-left');
     });
   }
 }
